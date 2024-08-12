@@ -1,11 +1,11 @@
 import {classNames} from "@/shared/lib/utils/classNames.ts";
 import { v4 as uuidv4 } from "uuid";
 import styles from "./Word.module.scss";
-import {useEffect, useState} from "react";
 
 export interface WordProps {
   word: string;
   typedWord?: string;
+  className: string;
 }
 
 const Word = (props: WordProps) => {
@@ -26,9 +26,9 @@ const Word = (props: WordProps) => {
         </span>
       ))}
 
-      {typedWord?.length > word.length &&
+      {typedWord && typedWord?.length > word.length &&
         (
-        typedWord?.slice(word.length).split("").map((letter, index) => (
+        typedWord?.slice(word.length).split("").map((letter) => (
           <span
             key={uuidv4()}
             className={styles.extra}

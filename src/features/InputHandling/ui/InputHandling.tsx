@@ -1,7 +1,7 @@
 import {KeyboardEvent, useCallback, useEffect} from "react";
 
 export interface InputHandlingProps {
-  keyDownHandler: (e: KeyboardEvent) => void;
+  keyDownHandler: (event: KeyboardEvent) => void;
 }
 
 const InputHandling = (props: InputHandlingProps) => {

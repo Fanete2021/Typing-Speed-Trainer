@@ -38,7 +38,7 @@ const TypingTest = (props: TypingTestProps) => {
 
   const dispatch = useAppDispatch();
 
-  const handleKeyDown = (event) => {
+  const handleKeyDown = (event: React.KeyboardEvent) => {
     const newLetter = event.key;
 
     if (isWorkTimer) {
@@ -100,7 +100,7 @@ const TypingTest = (props: TypingTestProps) => {
         }
 
         if (parentRect.top - relativeTop < maxHeightDifference) {
-          setIndexStartWord(prev => typedWords.length - 1);
+          setIndexStartWord(typedWords.length - 1);
           caretRef.current!.style.left = `auto`;
           caretRef.current!.style.top = `auto`;
         }
@@ -135,7 +135,7 @@ const TypingTest = (props: TypingTestProps) => {
 
   return (
     <div className={styles.TypingTest}>
-      <InputHandling keyDownHandler={handleKeyDown}/>
+      <InputHandling keyDownHandler={(e) => handleKeyDown(e)}/>
 
       <div className={styles.words}>
         {words.slice(indexStartWord, indexStartWord + maxRenderingWords).map((word, index) => (
