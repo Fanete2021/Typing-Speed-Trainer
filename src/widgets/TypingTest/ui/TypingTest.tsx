@@ -138,7 +138,7 @@ const TypingTest = (props: TypingTestProps) => {
     <div className={styles.TypingTest}>
       <InputHandling keyDownHandler={(e) => handleKeyDown(e)}/>
 
-      <input type="text" className={styles.hiddenInput} ref={hiddenInputRef}/>
+      <input type="text" className={styles.hiddenInput} ref={hiddenInputRef} onKeyDown={handleKeyDown}/>
 
       <div
         className={styles.words}
