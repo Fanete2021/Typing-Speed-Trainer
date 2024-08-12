@@ -6,11 +6,14 @@ import {InputHandling} from "@/features/InputHandling";
 import {Timer} from "@/features/Timer";
 import {useAppDispatch} from "@/shared/lib/hooks/useAppDispatch.ts";
 import {TypingTestResult, typingTestActions} from "@/entiites/TypingTest";
+import {useIsMobile} from "@/shared/lib/hooks/useIsMobile.ts";
 
-const maxRenderingWords = 100;
+const maxRenderingWordsDesktop = 80;
+const maxRenderingWordsMobile = 30;
 const maxWrongs = 5;
 const maxHeightDifference   = 40; //максимальная разница высоты между кареткой и нижней границей блока
 const seconds = 60;
+const backspace = "Backspace";
 
 export interface TypingTestProps {
   text: string;
@@ -37,13 +40,12 @@ const TypingTest = (props: TypingTestProps) => {
   const caretRef = useRef<HTMLDivElement | null>(null);
   const hiddenInputRef = useRef<HTMLInputElement | null>(null); //Для клавиатуры на мобильных устройствах
 
+  const isMobile = useIsMobile();
   const dispatch = useAppDispatch();
 
-  const handleKeyDown = (event: React.KeyboardEvent) => {
-    const newLetter = event.key;
-
+  const handleKeyDown = (newLetter: string) => {
     if (isWorkTimer) {
-      if (event.key === "Backspace") {
+      if (newLetter === backspace) {
         const newTypedText = typedText.slice(0, -1);
 
         setTypedText(newTypedText);
@@ -60,15 +62,25 @@ const TypingTest = (props: TypingTestProps) => {
         if (!isSpam) {
           setCountTypedSymbols(prev => prev + 1);
 
-          const newTypedText = typedText + event.key;
+          const newTypedText = typedText + newLetter;
           setTypedText(newTypedText);
           setTypedWords(newTypedText.split(" "));
 
-          if (text[typedText.length] !== event.key) {
+          if (text[typedText.length] !== newLetter) {
             setCountErrors(prev => prev + 1);
           }
         }
       }
+    }
+  }
+
+  const handleMobileKeyDown = (event) => {
+    const {value} = event.target;
+
+    if (value.length < typedText.length) {
+      handleKeyDown(backspace);
+    } else {
+      handleKeyDown(value.slice(-1));
     }
   }
 
@@ -116,6 +128,7 @@ const TypingTest = (props: TypingTestProps) => {
     setTypedWords([]);
     setTypedText("");
     setIndexStartWord(0);
+    hiddenInputRef.current!.value = "";
 
     caretRef.current!.style.left = 'auto';
     caretRef.current!.style.top = 'auto';
@@ -136,15 +149,24 @@ const TypingTest = (props: TypingTestProps) => {
 
   return (
     <div className={styles.TypingTest}>
-      <InputHandling keyDownHandler={(e) => handleKeyDown(e)}/>
 
-      <input type="text" className={styles.hiddenInput} ref={hiddenInputRef} onKeyDown={handleKeyDown}/>
+      {isMobile
+        ?
+          <input
+            type="text"
+            className={styles.hiddenInput}
+            ref={hiddenInputRef}
+            onChange={(e) => handleMobileKeyDown(e)}
+          />
+        :
+          <InputHandling keyDownHandler={(e) => handleKeyDown(e.key)}/>
+      }
 
       <div
         className={styles.words}
         onClick={() => hiddenInputRef.current?.focus()}
       >
-        {words.slice(indexStartWord, indexStartWord + maxRenderingWords).map((word, index) => (
+        {words.slice(indexStartWord, indexStartWord + (isMobile ? maxRenderingWordsMobile : maxRenderingWordsDesktop)).map((word, index) => (
           <div
             key={uuidv4()}
             ref={el => wordRefs.current[index] = el}

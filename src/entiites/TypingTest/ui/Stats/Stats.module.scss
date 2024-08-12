@@ -16,16 +16,28 @@
 .head {
   font-size: 40px;
   font-weight: 500;
+
+  @media screen and (max-width: 768px) {
+    font-size: 30px;
+  }
 }
 
 .title {
   font-size: 25px;
   font-weight: 500;
+
+  @media screen and (max-width: 768px) {
+    font-size: 18px;
+  }
 }
 
 .result {
   font-size: 20px;
   margin-left: 10px;
+
+  @media screen and (max-width: 768px) {
+    font-size: 15px;
+  }
 }
 
 .row {

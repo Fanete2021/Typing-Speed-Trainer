@@ -16,7 +16,7 @@ const Word = (props: WordProps) => {
   } = props;
 
   return (
-    <div className={classNames(className)}>
+    <div className={classNames(className, [styles.word])}>
       {word.split("").map((letter, index) => (
         <span
           key={uuidv4()}
