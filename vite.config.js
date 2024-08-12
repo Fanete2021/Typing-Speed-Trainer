@@ -17,5 +17,5 @@ export default defineConfig({
             "@": path.resolve(__dirname, "src")
         }
     },
-    base: "http://Fanete2021.github.io/Typing-Speed-Trainer",
+    base: '/{repo-name}/'
 });
