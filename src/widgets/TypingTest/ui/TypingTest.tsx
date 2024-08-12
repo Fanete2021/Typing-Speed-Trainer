@@ -1,18 +1,18 @@
-import { Word } from "@/shared/ui";
+import { Switcher, Word } from "@/shared/ui";
 import { v4 as uuidv4 } from "uuid";
-import {useCallback, useEffect, useRef, useState} from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import styles from "./TypingTest.module.scss";
-import {InputHandling} from "@/features/InputHandling";
-import {Timer} from "@/features/Timer";
-import {useAppDispatch} from "@/shared/lib/hooks/useAppDispatch.ts";
-import {TypingTestResult, typingTestActions} from "@/entiites/TypingTest";
-import {useIsMobile} from "@/shared/lib/hooks/useIsMobile.ts";
+import { InputHandling } from "@/features/InputHandling";
+import { Timer } from "@/features/Timer";
+import { useAppDispatch } from "@/shared/lib/hooks/useAppDispatch.ts";
+import { TypingTestResult, typingTestActions } from "@/entiites/TypingTest";
+import { useIsMobile } from "@/shared/lib/hooks/useIsMobile.ts";
 
 const maxRenderingWordsDesktop = 80;
-const maxRenderingWordsMobile = 30;
+const maxRenderingWordsMobile = 25;
 const maxWrongs = 5;
 const maxHeightDifference   = 40; //максимальная разница высоты между кареткой и нижней границей блока
-const seconds = 60;
+const timeOptions = [ 100, 60, 30, 15 ];
 const backspace = "Backspace";
 
 export interface TypingTestProps {
@@ -23,18 +23,20 @@ const TypingTest = (props: TypingTestProps) => {
   const {
     text
   } = props;
-  const [words, setWords] = useState<string[]>([]);
+  const [ words, setWords ] = useState<string[]>([]);
 
   useEffect(() => {
     setWords(text.split(" "));
-  }, [setWords, text]);
+  }, [ setWords, text ]);
 
-  const [typedText, setTypedText] = useState<string>("");
-  const [typedWords, setTypedWords] = useState<string[]>([]);
-  const [isWorkTimer, setIsWorkTimer] = useState<boolean>(false);
-  const [countTypedSymbols, setCountTypedSymbols] = useState<number>(0);
-  const [countErrors, setCountErrors] = useState<number>(0);
-  const [indexStartWord, setIndexStartWord] = useState<number>(0);
+  const [ typedText, setTypedText ] = useState<string>("");
+  const [ typedWords, setTypedWords ] = useState<string[]>([]);
+  const [ isWorkTimer, setIsWorkTimer ] = useState<boolean>(false);
+  const [ countTypedSymbols, setCountTypedSymbols ] = useState<number>(0);
+  const [ countErrors, setCountErrors ] = useState<number>(0);
+  const [ indexStartWord, setIndexStartWord ] = useState<number>(0);
+  const [ selectedTimeIndex, setSelectedTimeIndex ]  = useState<number>(0);
+  const [ seconds, setSeconds ] = useState<number>(100);
 
   const wordRefs = useRef<Array<HTMLDivElement | null>>([]);
   const caretRef = useRef<HTMLDivElement | null>(null);
@@ -72,17 +74,17 @@ const TypingTest = (props: TypingTestProps) => {
         }
       }
     }
-  }
+  };
 
   const handleMobileKeyDown = (event) => {
-    const {value} = event.target;
+    const { value } = event.target;
 
     if (value.length < typedText.length) {
       handleKeyDown(backspace);
     } else {
       handleKeyDown(value.slice(-1));
     }
-  }
+  };
 
   //Перемещение каретки
   useEffect(() => {
@@ -90,7 +92,7 @@ const TypingTest = (props: TypingTestProps) => {
       const currentWord = wordRefs.current[typedWords.length - 1 - indexStartWord];
 
       if (currentWord) {
-        const spans = currentWord.querySelectorAll('span');
+        const spans = currentWord.querySelectorAll("span");
         const targetSpan = spans[typedWords[typedWords.length - 1].length - 1];
 
         const rect = targetSpan ? targetSpan.getBoundingClientRect() : currentWord.getBoundingClientRect();
@@ -114,14 +116,15 @@ const TypingTest = (props: TypingTestProps) => {
 
         if (parentRect.top - relativeTop < maxHeightDifference) {
           setIndexStartWord(typedWords.length - 1);
-          caretRef.current!.style.left = `auto`;
-          caretRef.current!.style.top = `auto`;
+          caretRef.current!.style.left = "auto";
+          caretRef.current!.style.top = "auto";
         }
       }
     }
-  }, [wordRefs, typedWords, caretRef, setIndexStartWord]);
+  }, [ wordRefs, typedWords, caretRef, setIndexStartWord ]);
 
-  const startTimerHandler = useCallback(() => {
+  const startTimerHandler = () => {
+    setSeconds(timeOptions[selectedTimeIndex]);
     setIsWorkTimer(true);
     setCountTypedSymbols(0);
     setCountErrors(0);
@@ -129,13 +132,13 @@ const TypingTest = (props: TypingTestProps) => {
     setTypedText("");
     setIndexStartWord(0);
 
-    caretRef.current!.style.left = 'auto';
-    caretRef.current!.style.top = 'auto';
+    caretRef.current!.style.left = "auto";
+    caretRef.current!.style.top = "auto";
 
     if (hiddenInputRef.current) {
       hiddenInputRef.current!.value = "";
     }
-  }, [setIsWorkTimer, caretRef, hiddenInputRef]);
+  };
 
   const endTimerHandler = () => {
     setIsWorkTimer(false);
@@ -145,24 +148,33 @@ const TypingTest = (props: TypingTestProps) => {
       time: seconds,
       typedSymbols: countTypedSymbols,
       wpm: Math.round((countTypedSymbols / 5) / (seconds / 60)) //(Characters typed / 5) / (seconds typed / 60)
-    }
+    };
 
     dispatch(typingTestActions.setData(stats));
   };
 
   return (
     <div className={styles.TypingTest}>
+      <div className={styles.time}>
+        <div className={styles.title}>Настройка времени:</div>
+
+        <Switcher
+          options={timeOptions}
+          changeIndex={i => setSelectedTimeIndex(i)}
+          currentIndex={selectedTimeIndex}
+        />
+      </div>
 
       {isMobile
         ?
-          <input
-            type="text"
-            className={styles.hiddenInput}
-            ref={hiddenInputRef}
-            onChange={(e) => handleMobileKeyDown(e)}
-          />
+        <input
+          type="text"
+          className={styles.hiddenInput}
+          ref={hiddenInputRef}
+          onChange={(e) => handleMobileKeyDown(e)}
+        />
         :
-          <InputHandling keyDownHandler={(e) => handleKeyDown(e.key)}/>
+        <InputHandling keyDownHandler={(e) => handleKeyDown(e.key)}/>
       }
 
       <div

@@ -4,16 +4,35 @@
   align-items: center;
 }
 
+.time {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  .title {
+    font-size: 20px;
+    font-weight: 500;
+    margin-bottom: 10px;
+  }
+}
+
 .words {
   display: flex;
   gap: 5px;
   flex-wrap: wrap;
   overflow: hidden;
   max-height: 220px;
+
+  @media screen and (max-width: 768px) {
+    max-height: 180px;
+  }
+
   max-width: 1000px;
   padding: 5px;
   border: 1px solid #958f81;
   position: relative;
+  margin-top: 20px;
 }
 
 .actions {

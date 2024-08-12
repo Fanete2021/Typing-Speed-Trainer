@@ -1,4 +1,4 @@
-import {KeyboardEvent, useCallback, useEffect} from "react";
+import { KeyboardEvent, useCallback, useEffect } from "react";
 
 export interface InputHandlingProps {
   keyDownHandler: (event: KeyboardEvent) => void;
@@ -11,15 +11,15 @@ const InputHandling = (props: InputHandlingProps) => {
 
   const handleKeyDown = useCallback((event) => {
     keyDownHandler(event);
-  }, [keyDownHandler])
+  }, [ keyDownHandler ]);
 
   useEffect(() => {
-    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener("keydown", handleKeyDown);
 
     return () => {
-      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [keyDownHandler, handleKeyDown]);
+  }, [ keyDownHandler, handleKeyDown ]);
 
   return (
     <></>

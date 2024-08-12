@@ -3,7 +3,7 @@ import react from "@vitejs/plugin-react";
 import path from "path";
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [ react() ],
   css: {
     modules: {
       generateScopedName: "[name]__[local]___[hash:base64:5]",
@@ -15,5 +15,5 @@ export default defineConfig({
       "@": path.resolve(__dirname, "src"),
     },
   },
-  base: '/Typing-Speed-Trainer/',
+  base: "/Typing-Speed-Trainer/",
 });

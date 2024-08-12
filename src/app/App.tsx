@@ -1,8 +1,8 @@
 import "./styles/index.scss";
 import "./styles/reset.scss";
-import {TypingTest} from "@/widgets/TypingTest";
+import { TypingTest } from "@/widgets/TypingTest";
 import testText from "@/shared/assets/texts/testText.ts";
-import {Stats} from "@/entiites/TypingTest";
+import { Stats } from "@/entiites/TypingTest";
 
 function App() {
 
@@ -14,7 +14,7 @@ function App() {
         <Stats />
       </div>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;

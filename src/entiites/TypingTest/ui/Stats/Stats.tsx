@@ -1,5 +1,5 @@
-import {useSelector} from "react-redux";
-import {getTypingTestData} from "@/entiites/TypingTest";
+import { useSelector } from "react-redux";
+import { getTypingTestData } from "@/entiites/TypingTest";
 import styles from "./Stats.module.scss";
 
 const Stats = () => {

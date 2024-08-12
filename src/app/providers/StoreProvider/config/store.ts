@@ -1,7 +1,7 @@
 import { configureStore, Reducer, ReducersMapObject } from "@reduxjs/toolkit";
 import { StateSchema } from "./StateSchema";
 import { createReducerManager } from "./reducerManager";
-import {typingTestReducer} from "@/entiites/TypingTest";
+import { typingTestReducer } from "@/entiites/TypingTest";
 
 export function createReduxStore(
   initialState?: StateSchema,
