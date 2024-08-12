@@ -128,11 +128,14 @@ const TypingTest = (props: TypingTestProps) => {
     setTypedWords([]);
     setTypedText("");
     setIndexStartWord(0);
-    hiddenInputRef.current!.value = "";
 
     caretRef.current!.style.left = 'auto';
     caretRef.current!.style.top = 'auto';
-  }, [setIsWorkTimer]);
+
+    if (hiddenInputRef.current) {
+      hiddenInputRef.current!.value = "";
+    }
+  }, [setIsWorkTimer, caretRef, hiddenInputRef]);
 
   const endTimerHandler = () => {
     setIsWorkTimer(false);
