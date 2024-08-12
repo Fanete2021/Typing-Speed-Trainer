@@ -1,0 +1,32 @@
+.Timer {
+  display: flex;
+  gap: 10px;
+}
+
+.start,
+.retry {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.start {
+  font-size: 25px;
+  padding: 10px;
+  border-radius: 20px;
+  min-width: 120px;
+  background: green;
+  color: white;
+
+  &:hover {
+    background: #008600;
+  }
+
+  &:disabled {
+    background: #003b00;
+  }
+}
+
+.retry {
+  width: 80px;
+}

@@ -1,0 +1,35 @@
+.empty {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.stats {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.head {
+  font-size: 40px;
+  font-weight: 500;
+}
+
+.title {
+  font-size: 25px;
+  font-weight: 500;
+}
+
+.result {
+  font-size: 20px;
+  margin-left: 10px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
