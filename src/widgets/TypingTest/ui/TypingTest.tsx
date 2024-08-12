@@ -35,6 +35,7 @@ const TypingTest = (props: TypingTestProps) => {
 
   const wordRefs = useRef<Array<HTMLDivElement | null>>([]);
   const caretRef = useRef<HTMLDivElement | null>(null);
+  const hiddenInputRef = useRef<HTMLInputElement | null>(null); //Для клавиатуры на мобильных устройствах
 
   const dispatch = useAppDispatch();
 
@@ -137,7 +138,12 @@ const TypingTest = (props: TypingTestProps) => {
     <div className={styles.TypingTest}>
       <InputHandling keyDownHandler={(e) => handleKeyDown(e)}/>
 
-      <div className={styles.words}>
+      <input type="text" className={styles.hiddenInput} ref={hiddenInputRef}/>
+
+      <div
+        className={styles.words}
+        onClick={() => hiddenInputRef.current?.focus()}
+      >
         {words.slice(indexStartWord, indexStartWord + maxRenderingWords).map((word, index) => (
           <div
             key={uuidv4()}

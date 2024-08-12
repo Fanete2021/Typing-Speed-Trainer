@@ -39,3 +39,9 @@
   50% { opacity: 0; }
   100% { opacity: 1; }
 }
+
+.hiddenInput {
+  position: absolute;
+  opacity: 0;
+  z-index: -1;
+}
