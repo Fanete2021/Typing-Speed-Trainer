@@ -1,5 +1,4 @@
 import { Switcher, Word } from "@/shared/ui";
-import { v4 as uuidv4 } from "uuid";
 import { useEffect, useMemo, useRef, useState } from "react";
 import styles from "./TypingTest.module.scss";
 import { Timer } from "@/features/Timer";
@@ -189,7 +188,7 @@ const TypingTest = (props: TypingTestProps) => {
       >
         {words.slice(indexStartWord, indexLastWord).map((word, index) => (
           <div
-            key={uuidv4()}
+            key={index}
             ref={el => wordRefs.current[index] = el}
           >
             <Word
