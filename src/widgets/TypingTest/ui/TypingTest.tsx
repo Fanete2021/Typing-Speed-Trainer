@@ -1,12 +1,12 @@
 import { Switcher, Word } from "@/shared/ui";
 import { v4 as uuidv4 } from "uuid";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import styles from "./TypingTest.module.scss";
-import { InputHandling } from "@/features/InputHandling";
 import { Timer } from "@/features/Timer";
 import { useAppDispatch } from "@/shared/lib/hooks/useAppDispatch.ts";
 import { TypingTestResult, typingTestActions } from "@/entiites/TypingTest";
 import { useIsMobile } from "@/shared/lib/hooks/useIsMobile.ts";
+import { useInputHandling } from "@/shared/lib/hooks/useInputHandling.ts";
 
 const maxRenderingWordsDesktop = 80;
 const maxRenderingWordsMobile = 25;
@@ -23,11 +23,10 @@ const TypingTest = (props: TypingTestProps) => {
   const {
     text
   } = props;
-  const [ words, setWords ] = useState<string[]>([]);
 
-  useEffect(() => {
-    setWords(text.split(" "));
-  }, [ setWords, text ]);
+  const words = useMemo(() => {
+    return text.split(" ");
+  }, [ text ]);
 
   const [ typedText, setTypedText ] = useState<string>("");
   const [ typedWords, setTypedWords ] = useState<string[]>([]);
@@ -46,35 +45,39 @@ const TypingTest = (props: TypingTestProps) => {
   const dispatch = useAppDispatch();
 
   const handleKeyDown = (newLetter: string) => {
-    if (isWorkTimer) {
-      if (newLetter === backspace) {
-        const newTypedText = typedText.slice(0, -1);
+    if (!isWorkTimer) return;
 
-        setTypedText(newTypedText);
-        setTypedWords(newTypedText.split(" "));
-      } else {
-        //ignore Shift, ctrl ...
-        if (newLetter.length > 1) return;
+    if (newLetter === backspace) {
+      const newTypedText = typedText.slice(0, -1);
 
-        //ignore чтобы не перескакивать через слова
-        if (newLetter === " " && typedWords[typedWords.length - 1].length === 0) return;
+      setTypedText(newTypedText);
+      setTypedWords(newTypedText.split(" "));
+    } else {
+      //ignore Shift, ctrl ...
+      if (newLetter.length > 1) return;
 
-        //отключение спама
-        const isSpam = typedWords.length !== 0 && typedWords[typedWords.length - 1].length - words[typedWords.length - 1].length > maxWrongs;
-        if (!isSpam) {
-          setCountTypedSymbols(prev => prev + 1);
+      //ignore чтобы не перескакивать через слова
+      if (newLetter === " " && typedWords[typedWords.length - 1].length === 0) return;
 
-          const newTypedText = typedText + newLetter;
-          setTypedText(newTypedText);
-          setTypedWords(newTypedText.split(" "));
+      //отключение спама
+      const isSpam = typedWords.length &&
+        typedWords[typedWords.length - 1].length - words[typedWords.length - 1].length > maxWrongs;
 
-          if (text[typedText.length] !== newLetter) {
-            setCountErrors(prev => prev + 1);
-          }
-        }
+      if (isSpam) return;
+
+      setCountTypedSymbols(prev => prev + 1);
+
+      const newTypedText = typedText + newLetter;
+      setTypedText(newTypedText);
+      setTypedWords(newTypedText.split(" "));
+
+      if (text[typedText.length] !== newLetter) {
+        setCountErrors(prev => prev + 1);
       }
     }
   };
+
+  useInputHandling((e) => handleKeyDown(e.key));
 
   const handleMobileKeyDown = (event) => {
     const { value } = event.target;
@@ -88,49 +91,53 @@ const TypingTest = (props: TypingTestProps) => {
 
   //Перемещение каретки
   useEffect(() => {
-    if (wordRefs) {
-      const currentWord = wordRefs.current[typedWords.length - 1 - indexStartWord];
+    if (!wordRefs) return ;
+    
+    const currentWord = wordRefs.current[typedWords.length - 1 - indexStartWord];
 
-      if (currentWord) {
-        const spans = currentWord.querySelectorAll("span");
-        const targetSpan = spans[typedWords[typedWords.length - 1].length - 1];
+    if (!currentWord) return;
+  
+    const spans = currentWord.querySelectorAll("span");
+    const targetSpan = spans[typedWords[typedWords.length - 1].length - 1];
 
-        const rect = targetSpan ? targetSpan.getBoundingClientRect() : currentWord.getBoundingClientRect();
-        const parentRect = caretRef.current!.parentElement!.getBoundingClientRect();
+    const rect = targetSpan ? targetSpan.getBoundingClientRect() : currentWord.getBoundingClientRect();
+    const parentRect = caretRef.current!.parentElement!.getBoundingClientRect();
 
-        const relativeTop = rect.top - parentRect.top;
+    const relativeTop = rect.top - parentRect.top;
 
-        if (targetSpan) {
-          const relativeLeft = rect.right - parentRect.left;
+    if (targetSpan) {
+      const relativeLeft = rect.right - parentRect.left;
 
-          const offsetCaret = 2.5;
-          caretRef.current!.style.left = `${relativeLeft}px`;
-          caretRef.current!.style.top = `${relativeTop - offsetCaret}px`;
-        } else {
-          const relativeLeft = rect.left - parentRect.left;
+      const offsetCaret = 2.5;
+      caretRef.current!.style.left = `${relativeLeft}px`;
+      caretRef.current!.style.top = `${relativeTop - offsetCaret}px`;
+    } else {
+      const relativeLeft = rect.left - parentRect.left;
 
-          const offsetCaret = -1.5;
-          caretRef.current!.style.left = `${relativeLeft}px`;
-          caretRef.current!.style.top = `${relativeTop - offsetCaret}px`;
-        }
-
-        if (parentRect.top - relativeTop < maxHeightDifference) {
-          setIndexStartWord(typedWords.length - 1);
-          caretRef.current!.style.left = "auto";
-          caretRef.current!.style.top = "auto";
-        }
-      }
+      const offsetCaret = -1.5;
+      caretRef.current!.style.left = `${relativeLeft}px`;
+      caretRef.current!.style.top = `${relativeTop - offsetCaret}px`;
     }
-  }, [ wordRefs, typedWords, caretRef, setIndexStartWord ]);
 
-  const startTimerHandler = () => {
-    setSeconds(timeOptions[selectedTimeIndex]);
-    setIsWorkTimer(true);
+    if (parentRect.top - relativeTop < maxHeightDifference) {
+      setIndexStartWord(typedWords.length - 1);
+      caretRef.current!.style.left = "auto";
+      caretRef.current!.style.top = "auto";
+    }
+  }, [ wordRefs, typedWords, caretRef, setIndexStartWord, indexStartWord ]);
+
+  const resetStates = () => {
     setCountTypedSymbols(0);
     setCountErrors(0);
     setTypedWords([]);
     setTypedText("");
     setIndexStartWord(0);
+  };
+
+  const startTimerHandler = () => {
+    setSeconds(timeOptions[selectedTimeIndex]);
+    setIsWorkTimer(true);
+    resetStates();
 
     caretRef.current!.style.left = "auto";
     caretRef.current!.style.top = "auto";
@@ -153,6 +160,8 @@ const TypingTest = (props: TypingTestProps) => {
     dispatch(typingTestActions.setData(stats));
   };
 
+  const indexLastWord = indexStartWord + (isMobile ? maxRenderingWordsMobile : maxRenderingWordsDesktop);
+
   return (
     <div className={styles.TypingTest}>
       <div className={styles.time}>
@@ -165,23 +174,20 @@ const TypingTest = (props: TypingTestProps) => {
         />
       </div>
 
-      {isMobile
-        ?
+      {isMobile &&
         <input
           type="text"
           className={styles.hiddenInput}
           ref={hiddenInputRef}
           onChange={(e) => handleMobileKeyDown(e)}
         />
-        :
-        <InputHandling keyDownHandler={(e) => handleKeyDown(e.key)}/>
       }
 
       <div
         className={styles.words}
         onClick={() => hiddenInputRef.current?.focus()}
       >
-        {words.slice(indexStartWord, indexStartWord + (isMobile ? maxRenderingWordsMobile : maxRenderingWordsDesktop)).map((word, index) => (
+        {words.slice(indexStartWord, indexLastWord).map((word, index) => (
           <div
             key={uuidv4()}
             ref={el => wordRefs.current[index] = el}

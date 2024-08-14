@@ -1,6 +1,5 @@
 import styles from "./Switcher.module.scss";
 import { classNames } from "@/shared/lib/utils/classNames.ts";
-import { v4 as uuidv4 } from "uuid";
 
 export interface SwitcherProps {
   options: string[] | number[],
@@ -21,7 +20,7 @@ const Switcher = (props: SwitcherProps) => {
         <button
           className={classNames(styles.option, [ index === currentIndex && styles.selected ])}
           onClick={() => changeIndex(index)}
-          key={uuidv4()}
+          key={option}
         >
           {option}
         </button>

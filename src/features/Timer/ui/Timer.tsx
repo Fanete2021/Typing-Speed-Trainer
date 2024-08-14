@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import styles from "./Timer.module.scss";
 
 export interface TimerProps {
@@ -12,15 +12,15 @@ const Timer = (props: TimerProps) => {
 
   const [ isWork, setIsWork ] = useState<boolean>(false);
   const [ remainingTime, setRemainingTime ] = useState<number>(seconds);
-  const timer = useRef<NodeJS.Timeout | undefined>(undefined);
+  const timer = useRef<NodeJS.Timeout>();
 
   useEffect(() => {
     setRemainingTime(seconds);
   }, [ seconds ]);
 
-  const changeRemainingTime = useCallback(() => {
+  const decreaseRemainingTime = () => {
     setRemainingTime(prev => prev - 1);
-  }, []);
+  };
 
   useEffect(() => {
     if (remainingTime === 0) {
@@ -34,7 +34,6 @@ const Timer = (props: TimerProps) => {
   }, [ remainingTime, endHandler ]);
 
   useEffect(() => {
-    // Cleanup interval on component unmount
     return () => {
       if (timer.current) {
         clearInterval(timer.current);
@@ -42,7 +41,7 @@ const Timer = (props: TimerProps) => {
     };
   }, []);
 
-  const start = useCallback(() => {
+  const start = () => {
     setRemainingTime(seconds);
     setIsWork(true);
 
@@ -51,16 +50,16 @@ const Timer = (props: TimerProps) => {
     }
 
     timer.current = setInterval(() => {
-      changeRemainingTime();
+      decreaseRemainingTime();
     }, 1000);
 
     startHandler?.();
-  }, [ seconds, changeRemainingTime, startHandler ]);
+  };
 
-  const retryHandler = useCallback(() => {
-    clearInterval(timer.current!);
+  const retryHandler = () => {
+    clearInterval(timer.current);
     start();
-  }, [ start ]);
+  };
 
   return (
     <div className={styles.Timer}>
